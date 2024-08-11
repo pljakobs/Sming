@@ -77,7 +77,11 @@
 	path = Sming/Components/ws_parser
 	url = https://github.com/charliesome/ws_parser.git
 	ignore = dirty
-
+[submodule "/opt/Sming/Sming/Components/JsonStreamingParser"]
+	path = Sming/Components/JsonStreamingParser
+	url = git@github.com:mikee47/JsonStreamingParser.git
+	branch = develop
+	ignore = dirty
 
 #
 # `Esp8266` Components
@@ -435,3 +439,8 @@
 # END OF .gitmodules
 #
 #################################################################################################
+
+[submodule "Sming/Components/ConfigDB"]
+	path = Sming/Components/ConfigDB
+	url = git@github.com:mikee47/ConfigDB.git
+	branch = dev/json-parser
