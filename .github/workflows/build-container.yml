@@ -14,7 +14,18 @@ jobs:
         with:
           ref: develop
 
-      - name: Set up Docker Buildx
+      - name: Set environment variables
+        run: |
+          echo "SMING_BRANCH=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+          # Get the latest tag or use branch name if no tags available
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LATEST_TAG" ]; then
+            echo "SMING_TAG=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+          else
+            echo "SMING_TAG=$LATEST_TAG" >> $GITHUB_ENV
+          fi
+      
+          - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
