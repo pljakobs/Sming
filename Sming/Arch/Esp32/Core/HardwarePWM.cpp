@@ -135,10 +135,19 @@ uint32_t maxDuty(ledc_timer_bit_t bits)
 {
 	return (1U << bits) - 1;
 }
+int hpointForPin(uint8_t channelIndex, uint8_t channel_count)
+{
+	// hpoint is only used for the high speed channels
+	if(pinToGroup(channelIndex) != LEDC_LOW_SPEED_MODE) {
+		int _hpoint=(maxDuty(DEFAULT_RESOLUTION) / channel_count)*channelIndex;
+		return _hpoint;
+	}
+	return 0;
+}
 
 } //namespace
 
-HardwarePWM::HardwarePWM(const uint8_t* pins, uint8_t no_of_pins) : channel_count(no_of_pins)
+HardwarePWM::HardwarePWM(const uint8_t* pins, uint8_t no_of_pins, bool usePhaseShift, bool useSpreadSpectrum) : channel_count(no_of_pins)
 {
 	assert(no_of_pins > 0 && no_of_pins <= SOC_LEDC_CHANNEL_NUM);
 	no_of_pins = std::min(uint8_t(SOC_LEDC_CHANNEL_NUM), no_of_pins);
@@ -181,7 +190,7 @@ HardwarePWM::HardwarePWM(const uint8_t* pins, uint8_t no_of_pins) : channel_coun
 			.intr_type = LEDC_INTR_DISABLE,
 			.timer_sel = pinToTimer(i),
 			.duty = 0,
-			.hpoint = 0,
+			.hpoint = usePhaseShift ? hpointForPin(i,channel_count) : 0,
 		};
 		debug_d("ledc_channel\n"
 				"\tspeed_mode: %i\r\n"
