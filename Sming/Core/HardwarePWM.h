@@ -71,7 +71,7 @@ public:
 	 * 						  Depending on the base frequency, this may cause quite some system load, so 
 	 *                        choosing a good balance between CPU resources and acceptable EMI is important.
      */
-	HardwarePWM(const uint8_t* pins, uint8_t no_of_pins, bool usePhaseShift=false, bool useSpreadSpectrum=false);
+	HardwarePWM(const uint8_t* pins, uint8_t no_of_pins, bool usePhaseShift=false);
 	virtual ~HardwarePWM();
 
 	/** @brief  Set PWM duty cycle
@@ -161,6 +161,8 @@ public:
 
 private:
 	uint8_t channel_count;
+	bool _usePhaseShift;
+	bool _useSpreadSpectrum;
 	uint8_t channels[PWM_CHANNEL_NUM_MAX];
 	uint32_t maxduty{0};
 };
