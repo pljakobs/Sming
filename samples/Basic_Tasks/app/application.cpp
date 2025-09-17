@@ -20,6 +20,8 @@ constexpr unsigned hwTimerReportInterval{1000000}; //< How often to print hardwa
 
 volatile unsigned hwTimerCount;
 
+ElapseTimer hwTimer(hwTimerReportInterval);
+
 /*
  * Analogue reader task
  */
@@ -51,18 +53,25 @@ void hwTimerDelegate(uint32_t count)
 
 	lastCount = count;
 	timer.start();
+
+#ifdef ARCH_ESP32
+	/*
+	 * The task queue gets hammered very hard, with no idle time.
+	 * We need to occasionally reset the watchdog timer just to let the system know everything's OK.
+	*/
+	WDT.alive();
+#endif
 }
 
 void IRAM_ATTR hwTimerCallback()
 {
 	++hwTimerCount;
 
-	static ElapseTimer timer(hwTimerReportInterval);
-	if(timer.expired()) {
+	if(hwTimer.expired()) {
 		unsigned count = hwTimerCount;
 		//	System.queueCallback([count]() { hwTimerDelegate(count); });
 		System.queueCallback(hwTimerDelegate, count);
-		timer.start();
+		hwTimer.start();
 	}
 }
 
