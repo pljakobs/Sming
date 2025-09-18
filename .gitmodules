@@ -447,3 +447,5 @@
 # END OF .gitmodules
 #
 #################################################################################################
+[submodule "Sming/Libraries/ConfigDB"]
+	branch = fix/esp32-task
