@@ -447,3 +447,6 @@
 # END OF .gitmodules
 #
 #################################################################################################
+[submodule "Sming/Libraries/OneWire"]
+	path = Sming/Libraries/OneWire
+	url = https://github.com/PaulStoffregen/OneWire.git

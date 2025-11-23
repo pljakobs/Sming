@@ -1,0 +1,19 @@
+diff --git a/util/OneWire_direct_gpio.h b/util/OneWire_direct_gpio.h
+index a63aae1..d9b3fab 100644
+--- a/util/OneWire_direct_gpio.h
++++ b/util/OneWire_direct_gpio.h
+@@ -1,6 +1,14 @@
+ #ifndef OneWire_Direct_GPIO_h
+ #define OneWire_Direct_GPIO_h
+ 
++#if defined(ARCH_ESP32)
++#define ARDUINO_ARCH_ESP32
++#elif defined(ARCH_ESP8266)
++#define ARDUINO_ARCH_ESP8266
++#elif defined(ARCH_RP2040)    
++#define ARDUINO_ARCH_RP2040
++#endif
++
+ // This header should ONLY be included by OneWire.cpp.  These defines are
+ // meant to be private, used within OneWire.cpp, but not exposed to Arduino
+ // sketches or other libraries which may include OneWire.h.
