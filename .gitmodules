@@ -219,7 +219,7 @@
     ignore = dirty
 [submodule "Libraries.ConfigDB"]
 	path = Sming/Libraries/ConfigDB
-	url = https://github.com/mikee47/ConfigDB
+	url = git@github.com:pljakobs/ConfigDB
     ignore = dirty
 [submodule "Libraries.CS5460"]
 	path = Sming/Libraries/CS5460/CS5460
