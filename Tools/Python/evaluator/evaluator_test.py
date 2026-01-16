@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
-import sys 
+import sys
+
 # 1. Get SMING_HOME from environment
 sming_home = os.environ.get("SMING_HOME")
 if not sming_home:
@@ -22,7 +23,7 @@ except ImportError as e:
 
 def run_full_suite():
     evaluator = Evaluator()
-    
+
     # Environment Setup
     os.environ.update({
         "CPU_COUNT": "4",
@@ -79,7 +80,7 @@ def run_full_suite():
         ("1; import os", "Error: invalid syntax", "Injection: Multi-stmt"),
     ]
 
-    print(f"{'Category':<20} | {'Expression':<55} | {'Result'}")
+    print(f"{'Category':<30} | {'Expression':<60} | {'Result'}")
     print("-" * 110)
 
     passed = 0
@@ -91,14 +92,14 @@ def run_full_suite():
             success = expected in str(actual)
         else:
             success = (actual == expected)
-        
+
         if success:
             passed += 1
             status = "\033[92mPASS\033[0m"
         else:
             status = f"\033[91mFAIL\033[0m (Got: {actual})"
-        
-        print(f"{cat:<20} | {expr:<55} | {status}")
+
+        print(f"{cat:<30} | {expr:<60} | {status}")
 
     print("-" * 110)
     print(f"Final Score: {passed}/{len(test_cases)}")
