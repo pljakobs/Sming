@@ -5,6 +5,7 @@
 ## 2. Language Syntax
 
 ### 2.1 Literals and Types
+
 * **Integers & Floats:** Standard numeric literals (e.g., 100, 3.14).
 * **Hexadecimal:** Environment variables starting with 0x are automatically cast to integers.
 * **Strings:** Single or double-quoted literals (e.g., 'esp32', "enabled").
@@ -23,6 +24,7 @@
 | - (unary) | Negation | -1 * OFFSET |
 
 ### 2.3 Logical Aliases
+
 The evaluator pre-processes C-style tokens into Python logical keywords:
 
 | DSL Token | Internal Logical Node | Description |
@@ -33,6 +35,7 @@ The evaluator pre-processes C-style tokens into Python logical keywords:
 | != | != | Not Equal |
 
 ### 2.4 Comparison & Membership
+
 | Operator | Description | Example |
 | :--- | :--- | :--- |
 | == | Equality | CPU_COUNT == 4 |
@@ -44,6 +47,7 @@ The evaluator pre-processes C-style tokens into Python logical keywords:
 ---
 
 ## 3. Control Flow (Ternary Logic)
+
 The DSL uses the Python ternary structure. An else clause is mandatory.
 
 **Syntax:** [result_if_true] if [condition] else [result_if_false]
@@ -51,11 +55,13 @@ The DSL uses the Python ternary structure. An else clause is mandatory.
 
 
 **Example:**
+
 "HIGH_SPEED" if (BAUD >= 115200 || FORCE_FAST == "1") else "LOW_SPEED"
 
 ---
 
 ## 4. Built-in Functions
+
 The following whitelisted functions are available. Function calls are validated for correct argument counts via signature inspection before execution.
 
 * **pow2(x)**: Returns 2 raised to the power of x.
@@ -67,6 +73,7 @@ The following whitelisted functions are available. Function calls are validated 
 ---
 
 ## 5. Environment Variables & Truthiness
+
 Variables are pulled from os.environ. When used in a conditional if or with !, the following "Truthiness" rules apply to strings:
 
 * **Falsy:** "0", "False", "no", "off", or "" (empty string).
@@ -89,6 +96,7 @@ The Evaluator prevents common Python injection attacks through a strict "Fail-Cl
 * "'HIGH_SPEED' if COM_SPEED > 115200 else 'LOW_SPEED'" 
 
 ### Example Error Messages
+
 * Error: Unsupported function call type: Attribute: Triggered by attempting to use a "." in a function call.
 * Error: Forbidden function call: open: Triggered by attempting to call a function not in the whitelist.
 * Error: Function 'pow2' expects 1 arguments (got 3): Triggered by incorrect argument counts.
