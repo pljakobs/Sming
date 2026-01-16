@@ -24,6 +24,13 @@ except ImportError as e:
 def run_full_suite():
     evaluator = Evaluator()
 
+    def get_variable(name: str):
+        if name == 'NUMERIC_VAR':
+            return 123
+        return evaluator._get_variable(name)
+
+    evaluator.get_variable = get_variable
+
     # Environment Setup
     os.environ.update({
         "CPU_COUNT": "4",
@@ -43,6 +50,7 @@ def run_full_suite():
         ("1 << CPU_COUNT", 16, "Bit Shift"),
         ("~0 & 0xFF", 255, "Bitwise Invert & AND"),
         ("align_up(15, 8)", 16, "Custom Function"),
+        ("NUMERIC_VAR * 2", 123 * 2, "Custom variable"),
 
         # --- Multi-Argument & Custom Math ---
         ("max(1, 5, 2)", 5, "Variadic Function (max)"),
@@ -69,7 +77,7 @@ def run_full_suite():
         ("(1 if !IS_RELEASE else 0)", 1, "Bool Env + NOT (!)"),
 
         # --- Error Handling ---
-        ("UNDEFINED_VAR + 1", "Error: Environment variable 'UNDEFINED_VAR' is not defined.", "Missing Var"),
+        ("UNDEFINED_VAR + 1", "Error: Variable 'UNDEFINED_VAR' is not defined.", "Missing Var"),
         ("pow2(2, 4, 6)", "Error: Function 'pow2' expects 1 arguments (got 3)", "Param Mismatch"),
 
         # --- Code Injection (Security Audit) ---

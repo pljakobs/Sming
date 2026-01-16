@@ -40,6 +40,9 @@ class Evaluator:
             ast.NotIn: lambda a, b: a not in b
         }
 
+        self.get_variable = self._get_variable
+
+
     def _is_truthy(self, val):
         """Factually converts common C/Env strings to booleans."""
         if isinstance(val, bool):
@@ -50,6 +53,10 @@ class Evaluator:
             return False if val.lower() in ('false', '0', 'no', 'off', '') else True
         return bool(val)
 
+    def _get_variable(self, name: str):
+        '''Inherited classes may override this method to support custom variable resolution'''
+        return os.environ.get(name)
+
     def _eval(self, node):
         if isinstance(node, ast.Constant):
             return node.value
@@ -59,13 +66,15 @@ class Evaluator:
                 return True
             if node.id == 'False':
                 return False
-            val = os.environ.get(node.id)
+            val = self.get_variable(node.id)
             if val is None:
-                raise NameError(f"Environment variable '{node.id}' is not defined.")
-            try:
-                return float(val) if '.' in val else int(val, 0)
-            except ValueError:
-                return val
+                raise NameError(f"Variable '{node.id}' is not defined.")
+            if isinstance(val, str):
+                try:
+                    return float(val) if '.' in val else int(val, 0)
+                except ValueError:
+                    pass
+            return val
 
         if isinstance(node, ast.BinOp):
             return self.operators[type(node.op)](self._eval(node.left), self._eval(node.right))
