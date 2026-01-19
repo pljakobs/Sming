@@ -93,13 +93,12 @@ def run_full_suite():
 
     passed = 0
     for expr, expected, cat in test_cases:
-        actual = evaluator.run(expr)
-        
-        # Logic: If 'expected' is an error string, check if it's contained in the 'actual' result
-        if isinstance(expected, str) and expected.startswith("Error"):
-            success = expected in str(actual)
-        else:
+        try:
+            # Logic: If 'expected' is an error string, check if it's contained in the 'actual' result
+            actual = evaluator.run(expr)
             success = (actual == expected)
+        except Exception as e:
+            success = f'Error: {e}'.startswith(expected)
 
         if success:
             passed += 1

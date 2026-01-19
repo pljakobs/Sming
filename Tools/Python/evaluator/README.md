@@ -100,9 +100,11 @@ The Evaluator prevents common Python injection attacks through a strict "Fail-Cl
 "'HIGH_SPEED' if COM_SPEED > 115200 else 'LOW_SPEED'" 
 ```
 
-### Example Error Messages
+### Exceptions
 
-* Error: Unsupported function call type: Attribute: Triggered by attempting to use a "." in a function call.
-* Error: Forbidden function call: open: Triggered by attempting to call a function not in the whitelist.
-* Error: Function `pow2` expects 1 arguments (got 3): Triggered by incorrect argument counts.
-* Error: Variable 'VAR' is not defined: Does not exist in environment and not provided via `get_variable` callback.
+Errors will result in an exception, for example:
+
+* Unsupported function call type: Attribute: Triggered by attempting to use a "." in a function call.
+* Forbidden function call: open: Triggered by attempting to call a function not in the whitelist.
+* Function `pow2` expects 1 arguments (got 3): Triggered by incorrect argument counts.
+* Variable 'VAR' is not defined: Does not exist in environment and not provided via `get_variable` callback.

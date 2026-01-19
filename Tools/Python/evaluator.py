@@ -131,17 +131,15 @@ class Evaluator:
 
     def run(self, expr):
         if not expr or not expr.strip():
-            return "Error: Empty expression"
+            raise ValueError("Empty expression")
         processed = expr.replace("&&", " and ").replace("||", " or ")
         processed = re.sub(r'!(?!=)', ' not ', processed)
-        try:
-            tree = ast.parse(processed.strip(), mode='eval')
-            return self._eval(tree.body)
-        except Exception as e:
-            return f"Error: {e}"
+        tree = ast.parse(processed.strip(), mode='eval')
+        return self._eval(tree.body)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit("Usage: ./evaluator 'expression'")
-    print(Evaluator().run(sys.argv[1]))
+    result = Evaluator().run(sys.argv[1])
+    print(result)
