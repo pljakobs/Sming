@@ -58,13 +58,14 @@ The DSL uses the Python ternary structure. An else clause is mandatory.
 
 **Example:**
 
-```
+```text
 "HIGH_SPEED" if (BAUD >= 115200 || FORCE_FAST == "1") else "LOW_SPEED"
 ```
 
 ## 4. Built-in Functions
 
-The following whitelisted functions are available. Function calls are validated for correct argument counts via signature inspection before execution.
+The following whitelisted functions are available.
+Function calls are validated for correct argument counts via signature inspection before execution.
 
 * **pow2(x)**: Returns 2 raised to the power of x.
 * **log2(x)**: Returns the base-2 logarithm of x.
@@ -77,25 +78,26 @@ Applications may extend this by modifying the `functions` property.
 
 ## 5. Environment Variables & Truthiness
 
-Variables are pulled from os.environ. When used in a conditional if or with !, the following "Truthiness" rules apply to strings:
+Variables are pulled from os.environ.
+When used in a conditional if or with !, the following "Truthiness" rules apply to strings:
 
 * **Falsy:** "0", "False", "no", "off", or "" (empty string).
 * **Truthy:** Any other value (e.g., "1", "True", "esp32").
-
----
 
 ## 6. Security Guardrails
 
 The Evaluator prevents common Python injection attacks through a strict "Fail-Closed" model:
 
-1. **No Attribute Access:** The "." operator is forbidden. Attempting to call methods (e.g., os.system()) or access object properties (e.g., obj.__class__) results in an "Unsupported function call type: Attribute" or "Unsupported syntax: Attribute" error.
+1. **No Attribute Access:** The "." operator is forbidden.
+   Attempting to call methods (e.g., os.system()) or access object properties (e.g., obj.__class__)
+   results in an "Unsupported function call type: Attribute" or "Unsupported syntax: Attribute" error.
 2. **No Multi-Statement Logic:** Semicolons (;) and newlines are rejected by the parser (mode='eval').
 3. **No Imports:** Keywords like import or from are not supported in the expression grammar.
 4. **Whitelisted Nodes:** Only specific AST nodes (BinOp, UnaryOp, BoolOp, Compare, IfExp, Call, Constant, Name) are evaluated.
 
 ## Example expressions:
 
-```
+```text
 "True if 'esp32' in SMING_SOC else False"
 "'HIGH_SPEED' if COM_SPEED > 115200 else 'LOW_SPEED'" 
 ```

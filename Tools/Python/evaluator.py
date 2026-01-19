@@ -10,7 +10,7 @@ class Evaluator:
     def __init__(self):
         self.functions: dict[str, callable] = {
             'pow2': lambda x: 2**x,
-            'log2': lambda x: math.log2(x),
+            'log2': math.log2,
             'align_up': lambda v, a: (v + a - 1) & ~(a - 1),
             'max': max,
             'min': min
@@ -40,7 +40,7 @@ class Evaluator:
             ast.NotIn: lambda a, b: a not in b
         }
 
-        self.get_variable: callable[name] = self._get_variable
+        self.get_variable: callable[str] = self._get_variable
 
 
     def _is_truthy(self, val):
