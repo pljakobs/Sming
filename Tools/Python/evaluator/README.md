@@ -1,6 +1,10 @@
-# ConfigDB Evaluator DSL Specification
+# Sming Evaluator DSL Specification
 
 `Evaluator` implements a DSL to allow computed values for various settings at compile time.
+
+The intended purpose is to enable safe parsing of expressions involving environment variables.
+
+A simplistic evaluation can be done using `eval()` but that has security implications, and accessing environment variables is quite clunky.
 
 ## 2. Language Syntax
 
@@ -52,13 +56,11 @@ The DSL uses the Python ternary structure. An else clause is mandatory.
 
 **Syntax:** [result_if_true] if [condition] else [result_if_false]
 
-
-
 **Example:**
 
+```
 "HIGH_SPEED" if (BAUD >= 115200 || FORCE_FAST == "1") else "LOW_SPEED"
-
----
+```
 
 ## 4. Built-in Functions
 
@@ -70,7 +72,8 @@ The following whitelisted functions are available. Function calls are validated 
 * **min(...)**: Returns the minimum value of the arguments.
 * **max(...)**: Returns the maximum value of the arguments.
 
----
+Applications may extend this by modifying the `functions` property.
+
 
 ## 5. Environment Variables & Truthiness
 
@@ -92,12 +95,14 @@ The Evaluator prevents common Python injection attacks through a strict "Fail-Cl
 
 ## Example expressions:
 
-* "True if 'esp32' in SMING_SOC else False" #will evaluate true for any value of SMING_SOC that contains esp32
-* "'HIGH_SPEED' if COM_SPEED > 115200 else 'LOW_SPEED'" 
+```
+"True if 'esp32' in SMING_SOC else False"
+"'HIGH_SPEED' if COM_SPEED > 115200 else 'LOW_SPEED'" 
+```
 
 ### Example Error Messages
 
 * Error: Unsupported function call type: Attribute: Triggered by attempting to use a "." in a function call.
 * Error: Forbidden function call: open: Triggered by attempting to call a function not in the whitelist.
-* Error: Function 'pow2' expects 1 arguments (got 3): Triggered by incorrect argument counts.
-* Error: Environment variable 'VAR' is not defined: Triggered by a missing envi
+* Error: Function `pow2` expects 1 arguments (got 3): Triggered by incorrect argument counts.
+* Error: Variable 'VAR' is not defined: Does not exist in environment and not provided via `get_variable` callback.

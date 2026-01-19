@@ -8,7 +8,7 @@ import re
 
 class Evaluator:
     def __init__(self):
-        self.functions = {
+        self.functions: dict[str, callable] = {
             'pow2': lambda x: 2**x,
             'log2': lambda x: math.log2(x),
             'align_up': lambda v, a: (v + a - 1) & ~(a - 1),
@@ -16,7 +16,7 @@ class Evaluator:
             'min': min
         }
 
-        self.operators = {
+        self.operators: dict[object, callable] = {
             ast.Add: op.add,
             ast.Sub: op.sub,
             ast.Mult: op.mul,
@@ -40,7 +40,7 @@ class Evaluator:
             ast.NotIn: lambda a, b: a not in b
         }
 
-        self.get_variable = self._get_variable
+        self.get_variable: callable[name] = self._get_variable
 
 
     def _is_truthy(self, val):
