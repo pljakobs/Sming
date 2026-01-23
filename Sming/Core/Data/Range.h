@@ -11,6 +11,7 @@
 #pragma once
 
 #include <WString.h>
+#include <limits>
 #include <esp_systemapi.h>
 
 /**
@@ -80,7 +81,7 @@ template <typename T> struct TRange {
 	/**
 	 * @brief Determine if range contains a value
 	 */
-	bool contains(T value) const
+	template <typename V> constexpr bool contains(V value) const
 	{
 		return (value >= min) && (value <= max);
 	}
@@ -96,9 +97,9 @@ template <typename T> struct TRange {
 	/**
 	 * @brief Clip values to within the range
 	 */
-	T clip(T value) const
+	template <typename V> constexpr T clip(V value) const
 	{
-		return (value < min) ? min : (value > max) ? max : value;
+		return (value < min) ? min : (value > max) ? max : T(value);
 	}
 
 	/**
@@ -106,11 +107,14 @@ template <typename T> struct TRange {
 	 */
 	T random() const
 	{
-		auto n = 1 + max - min;
+		uint64_t n = 1 + max - min;
 		if(n == 0) {
 			return 0;
 		}
-		auto value = os_random();
+		T value = os_random();
+		if(n > std::numeric_limits<uint32_t>::max()) {
+			value |= uint64_t(os_random()) << 32;
+		}
 		return min + value % n;
 	}
 
