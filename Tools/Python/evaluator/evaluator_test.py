@@ -71,6 +71,11 @@ def run_full_suite():
         ("True if '32s' in CHIP && 'wifi' in FEATURES else False", True, "Nested Logic+Member"),
         ("'riscv' not in ARCH", True, "Negative Member"),
 
+        # --- Formatting ---
+        ("f'0x{CPU_COUNT:02x}'", '0x04', "Hex formatted value"),
+        ("f'{CPU_COUNT:>2}'", ' 4', "Padded string"),
+        ("f'{CPU_COUNT:.2f}'", '4.00', "Float string"),
+
         # --- Nested Ternary & Math ---
         ("pow2(CPU_COUNT) if CPU_COUNT > 2 else 0", 16, "Function in Ternary"),
         ("8 if CHIP == 'esp32' else (16 if CHIP == 'esp32s3' else 32)", 16, "Nested Else-If"),
@@ -99,6 +104,7 @@ def run_full_suite():
             success = (actual == expected)
         except Exception as e:
             success = f'Error: {e}'.startswith(expected)
+            actual = repr(e)
 
         if success:
             passed += 1

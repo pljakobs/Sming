@@ -127,6 +127,18 @@ class Evaluator:
 
             return func(*args)
 
+        if isinstance(node, ast.FormattedValue):
+            if node.conversion != -1:
+                raise ValueError('Conversion specifier not supported for f-strings')
+            s = self._eval(node.value)
+            if node.format_spec:
+                fmt = self._eval(node.format_spec)
+                return f'{{:{fmt}}}'.format(s)
+            return s
+
+        if isinstance(node, ast.JoinedStr):
+            return ''.join(str(self._eval(v)) for v in node.values)
+
         raise TypeError(f"Unsupported syntax: {type(node).__name__}")
 
     def run(self, expr):
@@ -134,7 +146,7 @@ class Evaluator:
             raise ValueError("Empty expression")
         processed = expr.replace("&&", " and ").replace("||", " or ")
         processed = re.sub(r'!(?!=)', ' not ', processed)
-        tree = ast.parse(processed.strip(), mode='eval')
+        tree = ast.parse(processed, mode='eval')
         return self._eval(tree.body)
 
 

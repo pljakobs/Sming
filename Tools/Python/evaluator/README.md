@@ -4,7 +4,8 @@
 
 The intended purpose is to enable safe parsing of expressions involving environment variables.
 
-A simplistic evaluation can be done using `eval()` but that has security implications, and accessing environment variables is quite clunky.
+A simplistic evaluation can be done using `eval()` but that has security implications,
+and accessing environment variables is quite clunky.
 
 ## 2. Language Syntax
 
@@ -12,7 +13,7 @@ A simplistic evaluation can be done using `eval()` but that has security implica
 
 * **Integers & Floats:** Standard numeric literals (e.g., 100, 3.14).
 * **Hexadecimal:** Environment variables starting with 0x are automatically cast to integers.
-* **Strings:** Single or double-quoted literals (e.g., 'esp32', "enabled").
+* **Strings:** Single or double-quoted literals (e.g., 'esp32', "enabled") and formatted-strings (e.g. "f'{value:02x}'")
 * **Booleans:** Case-sensitive True and False keywords.
 
 ### 2.2 Arithmetic & Bitwise
@@ -95,11 +96,12 @@ The Evaluator prevents common Python injection attacks through a strict "Fail-Cl
 3. **No Imports:** Keywords like import or from are not supported in the expression grammar.
 4. **Whitelisted Nodes:** Only specific AST nodes (BinOp, UnaryOp, BoolOp, Compare, IfExp, Call, Constant, Name) are evaluated.
 
-## Example expressions:
+## Example expressions
 
 ```text
 "True if 'esp32' in SMING_SOC else False"
-"'HIGH_SPEED' if COM_SPEED > 115200 else 'LOW_SPEED'" 
+"'HIGH_SPEED' if COM_SPEED > 115200 else 'LOW_SPEED'"
+"f'{RBOOT_ROM0_ADDR:08x}'"
 ```
 
 ### Exceptions
