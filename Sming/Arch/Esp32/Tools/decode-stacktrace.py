@@ -9,18 +9,20 @@ import shlex
 import subprocess
 import sys
 import re
+import os
 
 def usage():
     print("Usage: \n\t%s <file.elf> [<error-stack.log>]" % sys.argv[0])
 
 def extractAddresses(data):
-    m = re.findall("(40[0-2](\d|[a-f]){5})", data)
+    # Matches 40xxxxxx, 41xxxxxx, 42xxxxxx
+    m = re.findall("(4[0-2][0-9a-f]{6})", data.lower())
     if len(m) == 0:
         return m
 
     addresses = []
     for item in m:
-        addresses.append(item[0])
+        addresses.append(item)
 
     return addresses
 
@@ -29,7 +31,18 @@ if __name__ == "__main__":
         usage()
         sys.exit(1)
 
-    command = "xtensa-esp32-elf-addr2line -aipfC -e '%s' " % sys.argv[1]
+    soc = os.environ.get('SMING_SOC', 'esp32').lower()
+    
+    if soc in ['esp32c3', 'esp32c2', 'esp32c6', 'esp32h2']:
+        tool = 'riscv32-esp-elf-addr2line'
+    elif soc == 'esp32s2':
+        tool = 'xtensa-esp32s2-elf-addr2line'
+    elif soc == 'esp32s3':
+        tool = 'xtensa-esp32s3-elf-addr2line'
+    else:
+        tool = 'xtensa-esp32-elf-addr2line'
+
+    command = "%s -aipfC -e '%s' " % (tool, sys.argv[1])
     pipe = subprocess.Popen(shlex.split(command), bufsize=1, stdin=subprocess.PIPE)
 
     if len(sys.argv) > 2:
