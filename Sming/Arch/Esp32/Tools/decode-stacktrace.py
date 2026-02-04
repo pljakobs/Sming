@@ -60,6 +60,7 @@ def load_elf_symbols(elf_path, nm_tool):
     if not nm_tool or not shutil.which(nm_tool):
         return []
 
+
     symbols = []
     print(f"Loading symbols from ELF using {nm_tool}...", file=sys.stderr)
     cmd = [nm_tool, '-n', elf_path]
