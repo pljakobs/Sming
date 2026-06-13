@@ -112,8 +112,11 @@
  * MEMP_NUM_TCP_PCB: the number of simultaneously active TCP connections.
  * (requires the LWIP_TCP option)
  */
+#ifdef ARCH_HOST
+#define MEMP_NUM_TCP_PCB                32
+#else
 #define MEMP_NUM_TCP_PCB                4
-
+#endif
 /**
  * MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP connections.
  * (requires the LWIP_TCP option)
@@ -515,3 +518,10 @@
 #endif
 
 #endif /* LWIP_LWIPOPTS_H */
+
+/* Host CI override: reduce TIME_WAIT pressure for short-lived test connections */
+#ifdef ARCH_HOST
+#ifndef TCP_MSL
+#define TCP_MSL 5000
+#endif
+#endif
