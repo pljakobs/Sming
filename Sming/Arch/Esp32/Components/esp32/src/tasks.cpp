@@ -53,6 +53,9 @@ bool IRAM_ATTR tcpip_kick_thread()
 	if(xQueueIsQueueEmptyFromISR(eventQueue) == pdFALSE && !eventQueueFlag) {
 		eventQueueFlag = true;
 		auto err = tcpip_callbackmsg_trycallback_fromisr(callbackMessage);
+		if(err == ERR_MEM) {
+			eventQueueFlag = false;
+		}
 		return (err == ERR_NEED_SCHED);
 	}
 
