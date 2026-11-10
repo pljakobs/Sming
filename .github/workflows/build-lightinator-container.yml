@@ -1,0 +1,29 @@
+name: Rebuild Lightinator container
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    if: github.repository == 'pljakobs/Sming' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch firmware container build
+        env:
+          GH_TOKEN: ${{ secrets.SMING_CONTAINER_DISPATCH_TOKEN }}
+          SMING_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "::error::Configure SMING_CONTAINER_DISPATCH_TOKEN with Actions write access to pljakobs/esp_rgbww_firmware"
+            exit 1
+          fi
+          gh workflow run build-container.yml \
+            --repo pljakobs/esp_rgbww_firmware \
+            --ref 5.1/develop \
+            --field "sming_commit=$SMING_COMMIT"
