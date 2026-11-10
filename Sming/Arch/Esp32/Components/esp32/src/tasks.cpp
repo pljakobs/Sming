@@ -4,8 +4,6 @@
 
 #ifndef DISABLE_NETWORK
 #include <lwip/tcpip.h>
-#include <esp_timer.h>
-#include <esp_system.h>
 #endif
 
 namespace
@@ -26,9 +24,7 @@ void sming_task_loop(void*)
 #else
 
 tcpip_callback_msg* callbackMessage;
-esp_timer_handle_t callbackRetryTimer;
-portMUX_TYPE callbackMux = portMUX_INITIALIZER_UNLOCKED;
-bool eventQueueFlag;
+volatile bool eventQueueFlag;
 
 /**
  * @brief Process all messages in the Sming event queue
@@ -36,9 +32,7 @@ bool eventQueueFlag;
  */
 void tcpip_message_handler(void*)
 {
-	portENTER_CRITICAL_SAFE(&callbackMux);
 	eventQueueFlag = false;
-	portEXIT_CRITICAL_SAFE(&callbackMux);
 	// Process only waiting messages (not newly posted ones) so tcpip doesn't starve
 	auto messageCount = uxQueueMessagesWaiting(eventQueue);
 	os_event_t evt;
@@ -56,19 +50,11 @@ void tcpip_message_handler(void*)
 bool IRAM_ATTR tcpip_kick_thread()
 {
 	// If queue isn't empty and we haven't already asked for a tcpip callback, do that now
-	portENTER_CRITICAL_SAFE(&callbackMux);
-	const bool kick = xQueueIsQueueEmptyFromISR(eventQueue) == pdFALSE && !eventQueueFlag;
-	if(kick) {
+	if(xQueueIsQueueEmptyFromISR(eventQueue) == pdFALSE && !eventQueueFlag) {
 		eventQueueFlag = true;
-	}
-	portEXIT_CRITICAL_SAFE(&callbackMux);
-	if(kick) {
 		auto err = tcpip_callbackmsg_trycallback_fromisr(callbackMessage);
-		if(err != ERR_OK && err != ERR_NEED_SCHED) {
-			// Keep the scheduled flag set until the retry runs, even if no more events arrive.
-			if(esp_timer_start_once(callbackRetryTimer, 1000) != ESP_OK) {
-				esp_system_abort(DRAM_STR("TQ: Cannot arm tcpip wakeup retry"));
-			}
+		if(err == ERR_MEM) {
+			eventQueueFlag = false;
 		}
 		return (err == ERR_NEED_SCHED);
 	}
@@ -121,29 +107,7 @@ void start_sming_task_loop()
 
 #else
 
-	const esp_timer_create_args_t retryArgs = {
-		.callback = [](void*) {
-			static int64_t lastWarning{-1000000};
-			const auto now = esp_timer_get_time();
-			if(now - lastWarning >= 1000000) {
-				debug_w("TQ: Retrying tcpip wakeup after mailbox full");
-				lastWarning = now;
-			}
-			portENTER_CRITICAL_SAFE(&callbackMux);
-			eventQueueFlag = false;
-			portEXIT_CRITICAL_SAFE(&callbackMux);
-			tcpip_kick_thread();
-		},
-		.dispatch_method = ESP_TIMER_TASK,
-		.name = "taskQueueRetry",
-	};
-	if(esp_timer_create(&retryArgs, &callbackRetryTimer) != ESP_OK) {
-		esp_system_abort("TQ: Cannot allocate tcpip wakeup retry timer");
-	}
 	callbackMessage = tcpip_callbackmsg_new(tcpip_callback_fn(tcpip_message_handler), nullptr);
-	if(callbackMessage == nullptr) {
-		esp_system_abort("TQ: Cannot allocate tcpip callback message");
-	}
 
 	// There may be messages already queued
 	tcpip_kick_thread();
@@ -158,7 +122,7 @@ bool IRAM_ATTR system_os_post(uint8_t prio, os_signal_t sig, os_param_t par)
 	}
 
 	os_event_t ev{sig, par};
-	BaseType_t woken = pdFALSE;
+	BaseType_t woken;
 	auto res = xQueueSendToBackFromISR(eventQueue, &ev, &woken);
 	if(res != pdTRUE) {
 		return false;
