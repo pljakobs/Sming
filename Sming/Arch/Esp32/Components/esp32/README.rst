@@ -9,6 +9,30 @@ Introduction
 Contains startup code, crash handling and additional Esp32-specific support code,
 including the ESP-IDF SDK.
 
+With networking enabled, Sming callbacks run on the lwIP thread. If its mailbox
+is full, a one-shot ESP timer retries the wakeup after 1 ms, retaining queued
+events even when no further events arrive. Retry warnings are limited to one
+per second. This prevents a rejected wakeup from permanently stalling timers,
+PWM animation updates and deferred restarts while networking remains responsive.
+
+The wakeup flag is protected across producers, the lwIP dispatcher and the retry
+timer. A failed post keeps its reservation until the retry callback runs, so
+other producers cannot repeatedly arm the same timer. The retry timer is created
+before the callback message is published and lives for the system lifetime.
+Allocation or timer-arm failures terminate explicitly, including release builds;
+the ISR failure message is kept in internal RAM.
+
+Native dispatcher regression tests compile the actual ``src/tasks.cpp`` against
+FreeRTOS/lwIP/ESP timer doubles. Run them with::
+
+    make -C Sming/Arch/Esp32/Components/esp32/test/tasks test
+
+These cover debug and release-mode error handling, mailbox rejection without
+further posts, repeated rejection, full-queue recovery, producer/retry
+interleavings, bounded batches, seeded scheduling stress and four concurrent
+native producers. They do not replace cache-disabled interrupt tests or testing
+on the supported ESP32 SoCs and ESP-IDF versions.
+
 If you want to tune ESP-IDF to your needs you should run::
 
     make SMING_ARCH=Esp32 sdk-menuconfig
