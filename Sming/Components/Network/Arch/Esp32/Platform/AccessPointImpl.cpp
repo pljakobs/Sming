@@ -63,8 +63,8 @@ void AccessPointImpl::enable(bool enabled, bool save)
 
 bool AccessPointImpl::isEnabled() const
 {
-	uint8_t mode;
-	ESP_ERROR_CHECK(esp_wifi_get_mode((wifi_mode_t*)&mode));
+	wifi_mode_t mode;
+	ESP_ERROR_CHECK(esp_wifi_get_mode(&mode));
 	return (mode == WIFI_MODE_AP) || (mode == WIFI_MODE_APSTA);
 }
 

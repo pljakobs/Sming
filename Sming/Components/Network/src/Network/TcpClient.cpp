@@ -219,7 +219,6 @@ err_t TcpClient::onSent(uint16_t len)
 		TcpConnection::onSent(len);
 		close();
 	} else {
-		// Fire ReadyToSend callback
 		TcpConnection::onSent(len);
 	}
 

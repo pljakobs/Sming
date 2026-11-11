@@ -311,6 +311,13 @@ else
 SDK_COMPONENTS += xtensa
 endif
 
+# esp_lcd and esp_psram are required by RGB-panel display drivers (e.g. ST7701).
+# They are standard IDF components but not pulled in by default.
+SDK_COMPONENTS += esp_lcd
+ifeq ($(SMING_SOC),esp32s3)
+SDK_COMPONENTS += esp_psram
+endif
+
 SDK_ESP_WIFI_LIBS := \
 	coexist \
 	core \
