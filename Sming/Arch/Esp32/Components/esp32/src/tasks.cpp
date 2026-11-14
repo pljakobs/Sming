@@ -141,9 +141,6 @@ bool IRAM_ATTR tcpip_kick_thread()
 		}
 		portEXIT_CRITICAL_ISR(&statsMux);
 #endif
-		if(err == ERR_MEM) {
-			eventQueueFlag = false;
-		}
 		return (err == ERR_NEED_SCHED);
 	}
 
